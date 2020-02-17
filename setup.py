@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2020 Esteban J. G. Gabancho.
 #
 # Invenio-Flow is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -42,6 +42,9 @@ setup_requires = [
 
 install_requires = [
     'Flask-BabelEx>=0.9.3',
+    'invenio-celery>=1.1.1<1.2',
+    'invenio-rest>=1.0.0',
+    'invenio-db',
 ]
 
 packages = find_packages()
@@ -71,11 +74,17 @@ setup(
         'invenio_base.apps': [
             'invenio_flow = invenio_flow:InvenioFlow',
         ],
+        'invenio_base.api_apps': [
+            'invenio_flow = invenio_flow:InvenioFlow',
+        ],
         'invenio_base.blueprints': [
             'invenio_flow = invenio_flow.views:blueprint',
         ],
         'invenio_i18n.translations': [
             'messages = invenio_flow',
+        ],
+        'invenio_db.models': [
+            'invenio_flow = invenio_flow.models'
         ],
         # TODO: Edit these entry points to fit your needs.
         # 'invenio_access.actions': [],
@@ -85,7 +94,6 @@ setup(
         # 'invenio_base.api_blueprints': [],
         # 'invenio_base.blueprints': [],
         # 'invenio_celery.tasks': [],
-        # 'invenio_db.models': [],
         # 'invenio_pidstore.minters': [],
         # 'invenio_records.jsonresolver': [],
     },

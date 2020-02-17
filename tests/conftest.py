@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2020 Esteban J. G. Gabancho.
 #
 # Invenio-Flow is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -13,24 +13,19 @@ fixtures are available.
 
 from __future__ import absolute_import, print_function
 
-import shutil
-import tempfile
-
 import pytest
 from flask import Flask
 from flask_babelex import Babel
+from invenio_celery import InvenioCelery
+from invenio_db import InvenioDB
 
 from invenio_flow import InvenioFlow
-from invenio_flow.views import blueprint
 
 
 @pytest.fixture(scope='module')
-def celery_config():
-    """Override pytest-invenio fixture.
-
-    TODO: Remove this fixture if you add Celery support.
-    """
-    return {}
+def celery_config_ext(celery_config_ext):
+    celery_config_ext['CELERY_TASK_EAGER_PROPAGATES_EXCEPTIONS'] = False
+    return celery_config_ext
 
 
 @pytest.fixture(scope='module')
@@ -40,7 +35,9 @@ def create_app(instance_path):
         app = Flask('testapp', instance_path=instance_path)
         app.config.update(**config)
         Babel(app)
+        InvenioDB(app)
+        InvenioCelery(app)
         InvenioFlow(app)
-        app.register_blueprint(blueprint)
         return app
+
     return factory

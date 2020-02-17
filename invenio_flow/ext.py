@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2020 Esteban J. G. Gabancho.
 #
 # Invenio-Flow is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -9,9 +9,25 @@
 
 from __future__ import absolute_import, print_function
 
-from flask_babelex import gettext as _
+from werkzeug.utils import import_string
 
 from . import config
+from ._compat import string_types
+from .api import Flow, Task
+
+
+def obj_or_import_string(value, default=None):
+    """Import string or return object.
+
+    :params value: Import path or class object to instantiate.
+    :params default: Default object to return if the import fails.
+    :returns: The imported object.
+    """
+    if isinstance(value, string_types):
+        return import_string(value)
+    elif value:
+        return value
+    return default
 
 
 class InvenioFlow(object):
@@ -19,12 +35,24 @@ class InvenioFlow(object):
 
     def __init__(self, app=None):
         """Extension initialization."""
-        # TODO: This is an example of translation string with comment. Please
-        # remove it.
-        # NOTE: This is a note to a translator.
-        _('A translation string')
         if app:
+            self.app = app
             self.init_app(app)
+
+    @property
+    def flows(self):
+        """Get the flow configuration key from config."""
+        return self.app.config['FLOW_FACTORIES']
+
+    def get_flow_class(self, flow_name):
+        """Get flow class from configuration or default."""
+        flow_cfg = self.flows[flow_name]
+        return obj_or_import_string(flow_cfg.get('flow_class', None), Flow)
+
+    def get_flow_build_func(self, flow_name):
+        """Get the flow build function from configuration."""
+        flow_cfg = self.flows[flow_name]
+        return obj_or_import_string(flow_cfg['build_func'])
 
     def init_app(self, app):
         """Flask application initialization."""
@@ -33,12 +61,6 @@ class InvenioFlow(object):
 
     def init_config(self, app):
         """Initialize configuration."""
-        # Use theme's base template if theme is installed
-        if 'BASE_TEMPLATE' in app.config:
-            app.config.setdefault(
-                'FLOW_BASE_TEMPLATE',
-                app.config['BASE_TEMPLATE'],
-            )
         for k in dir(config):
             if k.startswith('FLOW_'):
                 app.config.setdefault(k, getattr(config, k))

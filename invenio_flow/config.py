@@ -21,10 +21,38 @@ The structure of the dictionary is as follows:
         return flow
 
 
-    def flow_permission_factory(action, flow):
-        def can(self):
-            return flow.payload.get('access') == 'full'
-        return type('MyPermissionChecker', (), {'can': can})()
+    def flow_permission_factory(action):
+        def allow(*args, **kwargs):
+            def can(self):
+                return True
+            return type('MyPermissionChecker', (), {'can': can})()
+
+        def deny(*args, **kwargs):
+            def can(self):
+                return False
+            return type('MyPermissionChecker', (), {'can': can})()
+
+        def task_actions(flow, task_id):
+            return allow()
+
+        def flow_create(flow_name, payload):
+            return allow()
+
+        def flow_actions(flow, payload=None):
+            return allow()
+
+        _actions = {
+            'flow-create': flow_create,
+            'flow-status': flow_actions,
+            'flow-start': flow_actions,
+            'flow-restart': flow_actions,
+            'flow-stop': flow_actions,
+            'flow-task-start': task_actions,
+            'flow-task-restart': task_actions,
+            'flow-task-stop': task_actions,
+        }
+
+        return _actions.get(action, deny)
 
 
     FLOW_FACTORIES = {

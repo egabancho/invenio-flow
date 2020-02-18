@@ -7,7 +7,7 @@
 
 """Invenio-Flow REST API."""
 
-from functools import wraps
+from functools import wraps, partial
 
 from flask import Blueprint, abort, current_app, jsonify, request
 from invenio_rest import ContentNegotiatedMethodView
@@ -23,6 +23,7 @@ blueprint = Blueprint('invenio_flow', __name__, url_prefix='/flows')
 
 def pass_payload(f):
     """Extract json payload from request."""
+
     @wraps(f)
     def inner(self, *args, **kwargs):
         payload = request.get_json() or None
@@ -33,6 +34,7 @@ def pass_payload(f):
 
 def pass_flow(f):
     """Retrieve the Flow instance from the database."""
+
     @wraps(f)
     def inner(self, flow_name, flow_id, *args, **kwargs):
         try:
@@ -49,7 +51,10 @@ class NewFlowResource(ContentNegotiatedMethodView):
     """Flow Resource."""
 
     @pass_payload
-    @need_permission('flow-create')
+    @need_permission(
+        lambda self, flow_name, payload, **kwargs: (flow_name, payload),
+        'flow-create',
+    )
     def post(self, flow_name, payload, **kwargs):
         """Create new flow instance with the payload."""
         try:
@@ -68,14 +73,16 @@ class FlowResource(ContentNegotiatedMethodView):
     """FLow Resource."""
 
     @pass_flow
-    @need_permission('flow-status')
+    @need_permission(lambda self, flow, **kwargs: (flow,), 'flow-status')
     def get(self, flow, **kwargs):
         """Get flow status."""
         return jsonify(flow.status)
 
     @pass_flow
     @pass_payload
-    @need_permission('flow-start')
+    @need_permission(
+        lambda self, flow, payload, **kwargs: (flow, payload), 'flow-start'
+    )
     def post(self, flow, payload, **kwargs):
         """Start flow with payload.
 
@@ -100,7 +107,9 @@ class FlowResource(ContentNegotiatedMethodView):
 
     @pass_flow
     @pass_payload
-    @need_permission('flow-restart')
+    @need_permission(
+        lambda self, flow, payload, **kwargs: (flow, payload), 'flow-restart'
+    )
     def put(self, flow, payload, **kwargs):
         """Restart the flow with payload."""
         flow.stop()
@@ -125,18 +134,23 @@ class FlowResource(ContentNegotiatedMethodView):
         return response
 
     @pass_flow
-    @need_permission('flow-stop')
+    @need_permission(lambda self, flow, **kwargs: (flow,), 'flow-stop')
     def delete(self, flow, **kwargs):
         """Stop a running flow."""
         flow.stop()
         return '', 202
 
 
+need_task_permission = partial(
+    need_permissions, lambda self, flow, task_id, **kwargs: (flow, task_id)
+)
+
+
 class TaskResource(ContentNegotiatedMethodView):
     """Task resource."""
 
     @pass_flow
-    @need_permission('flow-task-status')
+    @need_task_permission('flow-task-status')
     def get(self, flow, task_id, **kwargs):
         """Get task status."""
         try:
@@ -146,7 +160,7 @@ class TaskResource(ContentNegotiatedMethodView):
         return jsonify(status)
 
     @pass_flow
-    @need_permission('flow-task-restart')
+    @need_task_permission('flow-task-restart')
     def put(self, flow, task_id, **kwargs):
         """Restart the task at hand."""
         try:
@@ -156,7 +170,7 @@ class TaskResource(ContentNegotiatedMethodView):
         return '', 202
 
     @pass_flow
-    @need_permission('flow-task-stop')
+    @need_task_permission('flow-task-stop')
     def delete(self, flow, task_id, **kwargs):
         """Stop a running task."""
         try:

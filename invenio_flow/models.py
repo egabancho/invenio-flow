@@ -7,16 +7,16 @@
 
 """Flow and task models."""
 
+import logging
 import uuid
 from enum import Enum, unique
-import logging
 
 from invenio_db import db
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy_utils.models import Timestamp
 from sqlalchemy_utils.types import JSONType, UUIDType
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.exc import SQLAlchemyError
 
 logger = logging.getLogger('invenio-flow')
 
@@ -95,6 +95,7 @@ class Flow(db.Model, Timestamp):
         return Status.compute_status([t.status for t in self.tasks])
 
     def __repr__(self):
+        """Flow representation."""
         return '<Workflow {name} {status}: {payload}>'.format(self)
 
     @classmethod
@@ -103,6 +104,7 @@ class Flow(db.Model, Timestamp):
         return cls.query.get(id_)
 
     def to_dict(self):
+        """Flow dictionary representation."""
         return {
             'id': str(self.id),
             'created': self.created.isoformat(),
@@ -197,6 +199,7 @@ class Task(db.Model, Timestamp):
         return cls.query.get(id_)
 
     def to_dict(self):
+        """Task dictionary representation."""
         return {
             'id': str(self.id),
             'flow_id': str(self.flow_id),

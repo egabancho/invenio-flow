@@ -9,7 +9,6 @@
 
 import logging
 from functools import wraps
-from .utils import uuid
 from itertools import repeat
 
 from celery import Task as CeleryTask
@@ -20,13 +19,16 @@ from celery.task.control import revoke
 from invenio_db import db
 
 from .models import Flow as FlowModel
-from .models import Status, as_task
+from .models import Status
 from .models import Task as TaskModel
+from .models import as_task
+from .utils import uuid
 
 logger = logging.getLogger('invenio-flow')
 
 
 def align_arguments(f):
+    """Align tasks and tasks arguments decorator."""
     @wraps(f)
     def inner(self, task, task_kwargs=None):
         if isinstance(task, list) and not isinstance(task_kwargs, list):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2020 Esteban J. G. Gabancho.
 #
 # Invenio-Flow is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -31,10 +31,3 @@ def test_init():
     assert 'invenio-flow' not in app.extensions
     ext.init_app(app)
     assert 'invenio-flow' in app.extensions
-
-
-def test_view(base_client):
-    """Test view."""
-    res = base_client.get("/")
-    assert res.status_code == 200
-    assert 'Welcome to Invenio-Flow' in str(res.data)

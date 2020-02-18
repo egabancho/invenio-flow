@@ -24,6 +24,7 @@ from invenio_flow import InvenioFlow
 
 @pytest.fixture(scope='module')
 def celery_config_ext(celery_config_ext):
+    """Celery configuration."""
     celery_config_ext['CELERY_TASK_EAGER_PROPAGATES_EXCEPTIONS'] = False
     return celery_config_ext
 

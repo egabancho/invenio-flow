@@ -43,8 +43,8 @@ setup_requires = [
 install_requires = [
     'Flask-BabelEx>=0.9.3',
     'invenio-celery>=1.1.1<1.2',
-    'invenio-rest>=1.0.0',
-    'invenio-db',
+    'invenio-rest>=1.1.0<1.2.0',
+    'invenio-db>=1.0.4<1.1.0',
 ]
 
 packages = find_packages()

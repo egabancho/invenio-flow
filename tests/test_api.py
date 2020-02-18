@@ -10,7 +10,6 @@
 from __future__ import absolute_import, print_function
 
 from invenio_flow import Flow, task
-
 from invenio_flow.models import Task
 
 

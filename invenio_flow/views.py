@@ -9,7 +9,7 @@
 
 from functools import wraps
 
-from flask import Blueprint, request, abort, current_app, jsonify
+from flask import Blueprint, abort, current_app, jsonify, request
 from invenio_rest import ContentNegotiatedMethodView
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -23,7 +23,6 @@ blueprint = Blueprint('invenio_flow', __name__, url_prefix='/flows')
 
 def pass_payload(f):
     """Extract json payload from request."""
-
     @wraps(f)
     def inner(self, *args, **kwargs):
         payload = request.get_json() or None
@@ -34,7 +33,6 @@ def pass_payload(f):
 
 def pass_flow(f):
     """Retrieve the Flow instance from the database."""
-
     @wraps(f)
     def inner(self, flow_name, flow_id, *args, **kwargs):
         try:

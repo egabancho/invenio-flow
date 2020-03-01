@@ -8,7 +8,9 @@
 """Invenio-Flow permissions."""
 
 from functools import wraps
+
 from flask import abort
+
 from .proxies import current_flow
 
 

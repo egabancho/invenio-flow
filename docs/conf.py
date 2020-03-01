@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2019, 2020 Esteban J. G. Gabancho.
 #
 # Invenio-Flow is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -317,8 +317,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/', None),
-    # TODO: Configure external documentation references, eg:
-    # 'Flask-Admin': ('https://flask-admin.readthedocs.io/en/latest/', None),
+    'Flask': ('https://flask.palletsprojects.com', None),
 }
 
 # Autodoc configuraton.

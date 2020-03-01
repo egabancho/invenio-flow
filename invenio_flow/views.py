@@ -7,7 +7,7 @@
 
 """Invenio-Flow REST API."""
 
-from functools import wraps, partial
+from functools import partial, wraps
 
 from flask import Blueprint, abort, current_app, jsonify, request
 from invenio_rest import ContentNegotiatedMethodView
@@ -48,7 +48,7 @@ def pass_flow(f):
 
 
 class NewFlowResource(ContentNegotiatedMethodView):
-    """Flow Resource."""
+    """New Flow Resource."""
 
     @pass_payload
     @need_permission(
@@ -142,7 +142,7 @@ class FlowResource(ContentNegotiatedMethodView):
 
 
 need_task_permission = partial(
-    need_permissions, lambda self, flow, task_id, **kwargs: (flow, task_id)
+    need_permission, lambda self, flow, task_id, **kwargs: (flow, task_id)
 )
 
 
